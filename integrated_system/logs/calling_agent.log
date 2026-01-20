@@ -1,0 +1,31 @@
+[2025-08-28 01:00:23.602] [ctranslate2] [thread 1277122] [warning] The compute type inferred from the saved model is float16, but the target device or backend do not support efficient float16 computation. The model weights have been automatically converted to use the float32 compute type instead.
+INFO:     Will watch for changes in these directories: ['/home/prashansa-soni/Desktop/call_based_agent/Call_based_Booking_Agent /complete project/integrated_system/enhanced_calling_agent']
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     Started reloader process [1277122] using WatchFiles
+[2025-08-28 01:00:25.412] [ctranslate2] [thread 1277187] [warning] The compute type inferred from the saved model is float16, but the target device or backend do not support efficient float16 computation. The model weights have been automatically converted to use the float32 compute type instead.
+INFO:     Started server process [1277187]
+INFO:     Waiting for application startup.
+INFO:app:🚀 Starting Enhanced Calling Agent with Orchestrator Integration
+INFO:app:📞 Enhanced mode: Waiting for orchestrator commands
+INFO:     Application startup complete.
+INFO:     127.0.0.1:55952 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55960 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46856 - "GET /health HTTP/1.1" 200 OK
+INFO:app:📞 Triggering custom call to +919193174378
+INFO:twilio.http_client:-- BEGIN Twilio API Request --
+INFO:twilio.http_client:POST Request: https://api.twilio.com/2010-04-01/Accounts/ACd875f9348db0cb7683dd065d70dadd7a/Calls.json
+INFO:twilio.http_client:Headers:
+INFO:twilio.http_client:Content-Type : application/x-www-form-urlencoded
+INFO:twilio.http_client:Accept : application/json
+INFO:twilio.http_client:User-Agent : twilio-python/9.7.1 (Linux x86_64) Python/3.12.3
+INFO:twilio.http_client:X-Twilio-Client : python-9.7.1
+INFO:twilio.http_client:Accept-Charset : utf-8
+INFO:twilio.http_client:-- END Twilio API Request --
+INFO:twilio.http_client:Response Status Code: 201
+INFO:twilio.http_client:Response Headers: {'Content-Type': 'application/json;charset=utf-8', 'Content-Length': '2011', 'Connection': 'keep-alive', 'Date': 'Wed, 27 Aug 2025 19:32:50 GMT', 'Location': 'https://call-service.us1.svc.twilio.com/v2/Accounts/CAff8b1e82a3309dba43e6a3eafed2c44b', 'Twilio-Concurrent-Requests': '1', 'Twilio-Request-Id': 'RQc074a3fd5ec68bc68841bf68f13c657f', 'Twilio-Request-Duration': '0.110', 'X-Home-Region': 'us1', 'X-API-Domain': 'api.twilio.com', 'Strict-Transport-Security': 'max-age=31536000', 'X-Cache': 'Miss from cloudfront', 'Via': '1.1 3ed047b9445f29bd769c4848cba712a0.cloudfront.net (CloudFront)', 'X-Amz-Cf-Pop': 'DEL54-P3', 'X-Amz-Cf-Id': 'DXjwhxrlNYWxtm6mjLbEpoyB3Q_E6IL1mRvc6hS7xtcFzUIqZyd5cg==', 'X-Powered-By': 'AT-5000', 'X-Shenanigans': 'none', 'Vary': 'Origin'}
+ Placing call from +1775 363 9210 to +919193174378
+ Call placed successfully!
+ Call SID: CAff8b1e82a3309dba43e6a3eafed2c44b
+Status: queued
+ Started response processor task
+INFO:     127.0.0.1:37784 - "POST /api/v1/trigger-call HTTP/1.1" 200 OK

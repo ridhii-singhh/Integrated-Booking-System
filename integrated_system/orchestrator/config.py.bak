@@ -1,0 +1,293 @@
+"""
+Configuration management for the Integrated Booking & Calling System
+"""
+import os
+from typing import Optional
+from pydantic import BaseSettings
+from models import GoogleAuthConfig, TwilioConfig
+
+class Settings(BaseSettings):
+    """Application settings with environment variable support"""
+    
+    # =============================================================================
+    # SERVICE ENDPOINTS
+    # =============================================================================
+    
+    BOOKING_AGENT_URL: str = os.getenv("BOOKING_AGENT_URL", "http://localhost:8000")
+    CALLING_AGENT_URL: str = os.getenv("CALLING_AGENT_URL", "http://localhost:8001")
+    ORCHESTRATOR_PORT: int = int(os.getenv("ORCHESTRATOR_PORT", "8080"))
+    ORCHESTRATOR_HOST: str = os.getenv("ORCHESTRATOR_HOST", "0.0.0.0")
+    
+    # =============================================================================
+    # GOOGLE AUTHENTICATION & CALENDAR
+    # =============================================================================
+    
+    GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "your_google_client_id")
+    GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "your_google_client_secret")
+    GOOGLE_REDIRECT_URI: str = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8080/auth/google/callback")
+    GOOGLE_SCOPES: list = [
+        'https://www.googleapis.com/auth/calendar',
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/userinfo.profile'
+    ]
+    
+    # =============================================================================
+    # TWILIO CONFIGURATION
+    # =============================================================================
+    
+    TWILIO_ACCOUNT_SID: str = os.getenv("TWILIO_ACCOUNT_SID", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+    TWILIO_AUTH_TOKEN: str = os.getenv("TWILIO_AUTH_TOKEN", "XXXXXXXXXXXXXXXXXXXXXXXXXX")
+    TWILIO_PHONE_NUMBER: str = os.getenv("TWILIO_PHONE_NUMBER", "+1XXXXXXXXXX")
+    TWILIO_WEBHOOK_BASE_URL: str = os.getenv("TWILIO_WEBHOOK_BASE_URL", "https://your-ngrok-url.ngrok-free.app")
+    
+    # =============================================================================
+    # DATABASE & STATE MANAGEMENT
+    # =============================================================================
+    
+    STATE_STORAGE_TYPE: str = os.getenv("STATE_STORAGE_TYPE", "sqlite")  # memory, sqlite, postgres
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./integrated_system.db")
+    
+    # For in-memory storage (development)
+    USE_MEMORY_STORAGE: bool = os.getenv("USE_MEMORY_STORAGE", "false").lower() == "true"
+    
+    # =============================================================================
+    # SECURITY & SESSION MANAGEMENT
+    # =============================================================================
+    
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+    SESSION_EXPIRE_HOURS: int = int(os.getenv("SESSION_EXPIRE_HOURS", "24"))
+    JWT_ALGORITHM: str = "HS256"
+    
+    # =============================================================================
+    # LOGGING & MONITORING
+    # =============================================================================
+    
+    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
+    ENABLE_REQUEST_LOGGING: bool = os.getenv("ENABLE_REQUEST_LOGGING", "true").lower() == "true"
+    
+    # =============================================================================
+    # CALL CONFIGURATION
+    # =============================================================================
+    
+    DEFAULT_CALL_DELAY_MINUTES: int = int(os.getenv("DEFAULT_CALL_DELAY_MINUTES", "1"))
+    MAX_CALL_DELAY_MINUTES: int = int(os.getenv("MAX_CALL_DELAY_MINUTES", "60"))
+    CALL_TIMEOUT_SECONDS: int = int(os.getenv("CALL_TIMEOUT_SECONDS", "30"))
+    
+    # Default call scripts/templates
+    BOOKING_CONFIRMATION_SCRIPT: str = """
+    Hello! This is your booking confirmation call. 
+    I'm calling to confirm your meeting scheduled for {meeting_time} with {attendees}. 
+    The meeting topic is: {meeting_title}.
+    Please say 'yes' to confirm or 'no' to cancel this booking.
+    """
+    
+    RESCHEDULE_CONFIRMATION_SCRIPT: str = """
+    Hello! I'm calling about your meeting reschedule request.
+    Your meeting has been moved from {old_time} to {new_time}.
+    Please say 'yes' to confirm this reschedule or 'no' to keep the original time.
+    """
+    
+    CANCEL_CONFIRMATION_SCRIPT: str = """
+    Hello! I'm calling to confirm the cancellation of your meeting.
+    The meeting '{meeting_title}' scheduled for {meeting_time} will be cancelled.
+    Please say 'yes' to confirm cancellation or 'no' to keep the meeting.
+    """
+    
+    # =============================================================================
+    # FEATURE FLAGS
+    # =============================================================================
+    
+    ENABLE_GOOGLE_AUTH: bool = os.getenv("ENABLE_GOOGLE_AUTH", "true").lower() == "true"
+    ENABLE_CALL_FEATURES: bool = os.getenv("ENABLE_CALL_FEATURES", "true").lower() == "true"
+    ENABLE_WEBHOOKS: bool = os.getenv("ENABLE_WEBHOOKS", "true").lower() == "true"
+    ENABLE_NOTIFICATIONS: bool = os.getenv("ENABLE_NOTIFICATIONS", "true").lower() == "true"
+    
+    # =============================================================================
+    # DEVELOPMENT/DEBUG
+    # =============================================================================
+    
+    DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
+    RELOAD: bool = os.getenv("RELOAD", "true").lower() == "true"
+    CORS_ORIGINS: list = os.getenv("CORS_ORIGINS", "*").split(",")
+    
+    # =============================================================================
+    # API RATE LIMITING
+    # =============================================================================
+    
+    RATE_LIMIT_ENABLED: bool = os.getenv("RATE_LIMIT_ENABLED", "true").lower() == "true"
+    RATE_LIMIT_REQUESTS: int = int(os.getenv("RATE_LIMIT_REQUESTS", "100"))
+    RATE_LIMIT_WINDOW_MINUTES: int = int(os.getenv("RATE_LIMIT_WINDOW_MINUTES", "1"))
+    
+    # =============================================================================
+    # EXTERNAL SERVICE TIMEOUTS
+    # =============================================================================
+    
+    BOOKING_AGENT_TIMEOUT: int = int(os.getenv("BOOKING_AGENT_TIMEOUT", "30"))
+    CALLING_AGENT_TIMEOUT: int = int(os.getenv("CALLING_AGENT_TIMEOUT", "30"))
+    GOOGLE_API_TIMEOUT: int = int(os.getenv("GOOGLE_API_TIMEOUT", "30"))
+    
+    class Config:
+        env_file = ".env"
+        case_sensitive = True
+    
+    @property
+    def google_auth_config(self) -> Optional[GoogleAuthConfig]:
+        """Get Google Auth configuration"""
+        if not self.ENABLE_GOOGLE_AUTH:
+            return None
+        
+        return GoogleAuthConfig(
+            client_id=self.GOOGLE_CLIENT_ID,
+            client_secret=self.GOOGLE_CLIENT_SECRET,
+            redirect_uri=self.GOOGLE_REDIRECT_URI,
+            scopes=self.GOOGLE_SCOPES
+        )
+    
+    @property
+    def twilio_config(self) -> Optional[TwilioConfig]:
+        """Get Twilio configuration"""
+        if not self.ENABLE_CALL_FEATURES:
+            return None
+            
+        return TwilioConfig(
+            account_sid=self.TWILIO_ACCOUNT_SID,
+            auth_token=self.TWILIO_AUTH_TOKEN,
+            phone_number=self.TWILIO_PHONE_NUMBER,
+            webhook_base_url=self.TWILIO_WEBHOOK_BASE_URL
+        )
+    
+    def get_call_script(self, call_type: str, **kwargs) -> str:
+        """Get formatted call script for specific call type"""
+        scripts = {
+            "booking_confirmation": self.BOOKING_CONFIRMATION_SCRIPT,
+            "reschedule_confirmation": self.RESCHEDULE_CONFIRMATION_SCRIPT,
+            "cancel_confirmation": self.CANCEL_CONFIRMATION_SCRIPT
+        }
+        
+        script = scripts.get(call_type, "Hello! This is a confirmation call.")
+        
+        try:
+            return script.format(**kwargs)
+        except KeyError:
+            # If formatting fails, return the raw script
+            return script
+    
+    def is_production(self) -> bool:
+        """Check if running in production environment"""
+        return os.getenv("ENVIRONMENT", "development").lower() == "production"
+    
+    def validate_configuration(self) -> dict:
+        """Validate configuration and return status"""
+        issues = []
+        
+        # Check Google Auth if enabled
+        if self.ENABLE_GOOGLE_AUTH:
+            if self.GOOGLE_CLIENT_ID == "your_google_client_id":
+                issues.append("Google Client ID not configured")
+            if self.GOOGLE_CLIENT_SECRET == "your_google_client_secret":
+                issues.append("Google Client Secret not configured")
+        
+        # Check Twilio if enabled
+        if self.ENABLE_CALL_FEATURES:
+            if "XXXXXXXXX" in self.TWILIO_ACCOUNT_SID:
+                issues.append("Twilio Account SID not configured")
+            if "XXXXXXXXX" in self.TWILIO_AUTH_TOKEN:
+                issues.append("Twilio Auth Token not configured")
+            if "XXXXXXXXX" in self.TWILIO_PHONE_NUMBER:
+                issues.append("Twilio Phone Number not configured")
+        
+        # Check database
+        if self.STATE_STORAGE_TYPE == "postgres" and "postgresql" not in self.DATABASE_URL:
+            issues.append("PostgreSQL DATABASE_URL not properly configured")
+        
+        return {
+            "valid": len(issues) == 0,
+            "issues": issues,
+            "warnings": self._get_warnings()
+        }
+    
+    def _get_warnings(self) -> list:
+        """Get configuration warnings"""
+        warnings = []
+        
+        if self.SECRET_KEY == "your-secret-key-change-in-production":
+            warnings.append("Using default SECRET_KEY - change in production")
+        
+        if self.DEBUG and self.is_production():
+            warnings.append("DEBUG is enabled in production")
+        
+        return warnings
+
+# Create global settings instance
+settings = Settings()
+
+# =============================================================================
+# ENVIRONMENT-SPECIFIC CONFIGURATIONS
+# =============================================================================
+
+def get_development_config():
+    """Get configuration optimized for development"""
+    return {
+        "DEBUG": True,
+        "RELOAD": True,
+        "LOG_LEVEL": "DEBUG",
+        "USE_MEMORY_STORAGE": True,
+        "ENABLE_REQUEST_LOGGING": True,
+        "CORS_ORIGINS": ["*"]
+    }
+
+def get_production_config():
+    """Get configuration optimized for production"""
+    return {
+        "DEBUG": False,
+        "RELOAD": False,
+        "LOG_LEVEL": "INFO",
+        "USE_MEMORY_STORAGE": False,
+        "ENABLE_REQUEST_LOGGING": False,
+        "RATE_LIMIT_ENABLED": True
+    }
+
+def get_testing_config():
+    """Get configuration optimized for testing"""
+    return {
+        "DEBUG": True,
+        "USE_MEMORY_STORAGE": True,
+        "ENABLE_CALL_FEATURES": False,  # Disable calls during testing
+        "ENABLE_WEBHOOKS": False,
+        "LOG_LEVEL": "WARNING"
+    }
+
+# =============================================================================
+# CONFIGURATION HELPERS
+# =============================================================================
+
+def load_config_from_file(file_path: str):
+    """Load configuration from a file"""
+    try:
+        import json
+        with open(file_path, 'r') as f:
+            config_data = json.load(f)
+        
+        # Update environment variables
+        for key, value in config_data.items():
+            os.environ[key] = str(value)
+        
+        return True
+    except Exception as e:
+        print(f"Failed to load config from {file_path}: {e}")
+        return False
+
+def export_config_template():
+    """Export a configuration template"""
+    template = {
+        "GOOGLE_CLIENT_ID": "your_google_client_id",
+        "GOOGLE_CLIENT_SECRET": "your_google_client_secret",
+        "TWILIO_ACCOUNT_SID": "your_twilio_account_sid",
+        "TWILIO_AUTH_TOKEN": "your_twilio_auth_token",
+        "TWILIO_PHONE_NUMBER": "+1234567890",
+        "SECRET_KEY": "your-secret-key-change-in-production",
+        "DATABASE_URL": "sqlite:///./integrated_system.db",
+        "LOG_LEVEL": "INFO"
+    }
+    
+    return template

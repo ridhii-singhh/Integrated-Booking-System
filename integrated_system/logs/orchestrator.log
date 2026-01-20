@@ -1,0 +1,71 @@
+INFO:     Will watch for changes in these directories: ['/home/prashansa-soni/Desktop/call_based_agent/Call_based_Booking_Agent /complete project/integrated_system/orchestrator']
+INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+INFO:     Started reloader process [1277184] using WatchFiles
+INFO:     Started server process [1277214]
+INFO:     Waiting for application startup.
+INFO:main:🚀 Starting Integrated Booking & Calling System
+INFO:services.state_manager:📝 Using SQLite storage: ./integrated_system.db
+INFO:services.state_manager:✅ State Manager initialized with sqlite storage
+INFO:services.booking_service:📅 Making GET request to http://localhost:8000/api/v1/health
+INFO:services.booking_service:✅ Booking Agent health check passed
+INFO:main:📅 Booking Agent: {'status': 'healthy', 'timestamp': '2025-08-28T01:00:24.801758', 'service': 'Booking Agent API'}
+INFO:services.calling_service:📞 Making GET request to http://localhost:8001/health
+ERROR:services.calling_service:❌ Calling Agent request failed: Cannot connect to host localhost:8001 ssl:default [Connect call failed ('127.0.0.1', 8001)]
+INFO:services.calling_service:✅ Calling Agent health check passed
+INFO:main:📞 Calling Agent: None
+INFO:     Application startup complete.
+INFO:services.booking_service:📅 Making GET request to http://localhost:8000/api/v1/health
+INFO:services.booking_service:✅ Booking Agent health check passed
+INFO:services.calling_service:📞 Making GET request to http://localhost:8001/health
+INFO:services.calling_service:✅ Calling Agent health check passed
+INFO:     127.0.0.1:59158 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:watchfiles.main:3 changes detected
+INFO:services.booking_service:📅 Making GET request to http://localhost:8000/api/v1/health
+INFO:services.booking_service:✅ Booking Agent health check passed
+INFO:services.calling_service:📞 Making GET request to http://localhost:8001/health
+INFO:     127.0.0.1:41550 - "GET /api/v1/transactions HTTP/1.1" 200 OK
+INFO:services.calling_service:✅ Calling Agent health check passed
+INFO:     127.0.0.1:41544 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:watchfiles.main:3 changes detected
+INFO:services.state_manager:✅ Created transaction: b98267d8-16a2-4d92-94df-52c19ee43838 (booking)
+INFO:main:🎯 Starting integrated booking transaction: b98267d8-16a2-4d92-94df-52c19ee43838
+INFO:services.booking_service:📅 Booking meeting with command: Book a meeting with soniprashansa481@gmail.com tomorrow at 9 PM for 1 hour
+INFO:services.booking_service:📅 Making POST request to http://localhost:8000/api/v1/book
+INFO:watchfiles.main:3 changes detected
+INFO:services.booking_service:✅ Booking result: The time slot is available. Do you want to book the meeting 'Book a meeting' on 2025-08-29 21:00?
+INFO:services.state_manager:✅ Updated transaction b98267d8-16a2-4d92-94df-52c19ee43838: booking_attempted
+INFO:main:✅ Auto-confirming booking as requires_confirmation=True
+INFO:services.booking_service:📅 Confirming booking: Book a meeting with soniprashansa481@gmail.com tomorrow at 9 PM for 1 hour -> yes
+INFO:services.booking_service:📅 Making POST request to http://localhost:8000/api/v1/confirm
+INFO:watchfiles.main:3 changes detected
+INFO:services.booking_service:✅ Booking confirmation result: Meeting 'Book a meeting' booked successfully!
+INFO:services.state_manager:✅ Updated transaction b98267d8-16a2-4d92-94df-52c19ee43838: completed
+INFO:     127.0.0.1:53126 - "POST /api/v1/integrated-booking HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53126 - "GET /api/v1/transactions HTTP/1.1" 200 OK
+INFO:watchfiles.main:3 changes detected
+INFO:services.state_manager:✅ Created transaction: 79b52288-7ae8-4d2c-82fe-627554bc4334 (booking)
+INFO:main:🎯 Starting integrated booking transaction: 79b52288-7ae8-4d2c-82fe-627554bc4334
+INFO:services.booking_service:📅 Booking meeting with command: Book a meeting with soniprashansa481@gmail.com tomorrow at 9 PM for 1 hour
+INFO:services.booking_service:📅 Making POST request to http://localhost:8000/api/v1/book
+INFO:watchfiles.main:3 changes detected
+INFO:services.booking_service:✅ Booking result: The requested time is unavailable. Here are alternative slots:
+INFO:services.state_manager:✅ Updated transaction 79b52288-7ae8-4d2c-82fe-627554bc4334: booking_attempted
+INFO:main:✅ Auto-confirming booking as requires_confirmation=True
+INFO:services.booking_service:📅 Confirming booking: Book a meeting with soniprashansa481@gmail.com tomorrow at 9 PM for 1 hour -> yes
+INFO:services.booking_service:📅 Making POST request to http://localhost:8000/api/v1/confirm
+INFO:watchfiles.main:3 changes detected
+INFO:services.booking_service:✅ Booking confirmation result: Meeting 'Book a meeting' booked successfully!
+INFO:services.state_manager:✅ Updated transaction 79b52288-7ae8-4d2c-82fe-627554bc4334: completed
+INFO:     127.0.0.1:34878 - "POST /api/v1/integrated-booking HTTP/1.1" 200 OK
+INFO:main:📞 Triggering confirmation call for transaction: 79b52288-7ae8-4d2c-82fe-627554bc4334
+INFO:services.calling_service:📞 Triggering confirmation call to +919193174378
+INFO:services.calling_service:📞 Context received: {'transaction_id': '79b52288-7ae8-4d2c-82fe-627554bc4334', 'action_type': 'booking_confirmation', 'meeting_details': None, 'user_phone': '+919193174378'}
+INFO:services.calling_service:📞 Making request to calling agent with data: {'target_phone': '+919193174378', 'call_script': "Hello! This is your booking confirmation call. I'm calling to confirm your meeting titled 'your meeting' scheduled for the scheduled time with the participants. Please say 'yes' to confirm this booking or 'no' if you need to make changes.", 'context': {'transaction_id': '79b52288-7ae8-4d2c-82fe-627554bc4334', 'action_type': 'booking_confirmation', 'meeting_details': None, 'user_phone': '+919193174378'}, 'action_type': 'booking_confirmation'}
+INFO:services.calling_service:📞 Making POST request to http://localhost:8001/api/v1/trigger-call
+INFO:     127.0.0.1:34878 - "GET /api/v1/transactions HTTP/1.1" 200 OK
+INFO:watchfiles.main:3 changes detected
+INFO:services.calling_service:📞 Received result from calling agent: {'call_sid': 'CAff8b1e82a3309dba43e6a3eafed2c44b', 'status': 'initiated', 'success': True, 'message': 'Call triggered successfully to +919193174378'}
+INFO:services.calling_service:✅ Call trigger result: Call triggered successfully to +919193174378
+INFO:services.state_manager:✅ Updated transaction 79b52288-7ae8-4d2c-82fe-627554bc4334: call_triggered
+INFO:main:✅ Confirmation call triggered successfully for +919193174378
+INFO:watchfiles.main:3 changes detected

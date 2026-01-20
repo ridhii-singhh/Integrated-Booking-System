@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrated Booking & Calling System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .status-success { background-color: #10b981; }
+        .status-pending { background-color: #f59e0b; }
+        .status-failed { background-color: #ef4444; }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-calendar-plus text-2xl"></i>
+                    <h1 class="text-2xl font-bold">Integrated Booking & Calling System</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div id="health-status" class="flex items-center">
+                        <span class="status-indicator status-pending pulse-animation"></span>
+                        <span class="text-sm">Checking status...</span>
+                    </div>
+                    <button id="refresh-btn" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-all">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-6 py-8">
+        <!-- Action Cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <!-- Book Meeting Card -->
+            <div class="bg-white rounded-xl shadow-lg card-hover p-6">
+                <div class="flex items-center mb-4">
+                    <div class="bg-blue-100 p-3 rounded-lg">
+                        <i class="fas fa-calendar-plus text-blue-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold ml-3 text-gray-800">Book Meeting</h3>
+                </div>
+                <p class="text-gray-600 mb-4">Schedule a new meeting with automatic calendar integration and optional confirmation calls.</p>
+                <button onclick="openActionModal('book')" class="btn-primary text-white px-6 py-3 rounded-lg w-full font-semibold">
+                    <i class="fas fa-plus mr-2"></i>Book New Meeting
+                </button>
+            </div>
+
+            <!-- Reschedule Meeting Card -->
+            <div class="bg-white rounded-xl shadow-lg card-hover p-6">
+                <div class="flex items-center mb-4">
+                    <div class="bg-yellow-100 p-3 rounded-lg">
+                        <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold ml-3 text-gray-800">Reschedule Meeting</h3>
+                </div>
+                <p class="text-gray-600 mb-4">Change the time or date of existing meetings with participant notifications.</p>
+                <button onclick="openActionModal('reschedule')" class="btn-primary text-white px-6 py-3 rounded-lg w-full font-semibold">
+                    <i class="fas fa-edit mr-2"></i>Reschedule Meeting
+                </button>
+            </div>
+
+            <!-- Cancel Meeting Card -->
+            <div class="bg-white rounded-xl shadow-lg card-hover p-6">
+                <div class="flex items-center mb-4">
+                    <div class="bg-red-100 p-3 rounded-lg">
+                        <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold ml-3 text-gray-800">Cancel Meeting</h3>
+                </div>
+                <p class="text-gray-600 mb-4">Cancel meetings and notify all participants automatically.</p>
+                <button onclick="openActionModal('cancel')" class="btn-primary text-white px-6 py-3 rounded-lg w-full font-semibold">
+                    <i class="fas fa-trash mr-2"></i>Cancel Meeting
+                </button>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">Recent Transactions</h3>
+                <button onclick="loadTransactions()" class="text-blue-600 hover:text-blue-800 transition-colors">
+                    <i class="fas fa-sync-alt mr-1"></i>Refresh
+                </button>
+            </div>
+            <div id="transactions-container">
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-history text-3xl mb-3"></i>
+                    <p>Loading transactions...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Modal -->
+    <div id="action-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md slide-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 id="modal-title" class="text-xl font-semibold text-gray-800"></h3>
+                    <button onclick="closeActionModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <form id="action-form" onsubmit="submitAction(event)">
+                    <div class="mb-4">
+                        <label for="command" class="block text-sm font-medium text-gray-700 mb-2">Command</label>
+                        <textarea 
+                            id="command" 
+                            name="command" 
+                            rows="3" 
+                            placeholder="Enter your natural language command..."
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                            required
+                        ></textarea>
+                        <p class="text-xs text-gray-500 mt-1">Example: "Book a meeting with john@example.com tomorrow at 2 PM for 1 hour"</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="enable-call" name="enable_call" class="rounded text-blue-600">
+                            <span class="ml-2 text-sm text-gray-700">Enable confirmation call</span>
+                        </label>
+                    </div>
+
+                    <div id="call-options" class="mb-4 hidden">
+                        <div class="mb-3">
+                            <label for="phone-number" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                            <input 
+                                type="tel" 
+                                id="phone-number" 
+                                name="phone_number" 
+                                placeholder="+1234567890"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                        </div>
+                        <div class="mb-3">
+                            <label for="call-delay" class="block text-sm font-medium text-gray-700 mb-2">Call Delay (minutes)</label>
+                            <input 
+                                type="number" 
+                                id="call-delay" 
+                                name="call_delay" 
+                                value="1" 
+                                min="0" 
+                                max="60"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button 
+                            type="button" 
+                            onclick="closeActionModal()" 
+                            class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            type="submit" 
+                            id="submit-btn"
+                            class="flex-1 btn-primary text-white px-4 py-2 rounded-lg font-semibold"
+                        >
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Detail Modal -->
+    <div id="transaction-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl slide-in max-h-96 overflow-y-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800">Transaction Details</h3>
+                    <button onclick="closeTransactionModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div id="transaction-details"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50"></div>
+
+    <script>
+        // Global variables
+        let currentAction = '';
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            checkSystemHealth();
+            loadTransactions();
+            
+            // Enable call options toggle
+            document.getElementById('enable-call').addEventListener('change', function() {
+                const callOptions = document.getElementById('call-options');
+                if (this.checked) {
+                    callOptions.classList.remove('hidden');
+                } else {
+                    callOptions.classList.add('hidden');
+                }
+            });
+            
+            // Refresh button
+            document.getElementById('refresh-btn').addEventListener('click', function() {
+                checkSystemHealth();
+                loadTransactions();
+            });
+        });
+        
+        // System health check
+        async function checkSystemHealth() {
+            try {
+                const response = await fetch('/api/v1/health');
+                const health = await response.json();
+                
+                const statusElement = document.getElementById('health-status');
+                if (health.orchestrator === 'healthy') {
+                    statusElement.innerHTML = `
+                        <span class="status-indicator status-success"></span>
+                        <span class="text-sm">System Healthy</span>
+                    `;
+                } else {
+                    statusElement.innerHTML = `
+                        <span class="status-indicator status-failed"></span>
+                        <span class="text-sm">System Issues</span>
+                    `;
+                }
+            } catch (error) {
+                const statusElement = document.getElementById('health-status');
+                statusElement.innerHTML = `
+                    <span class="status-indicator status-failed"></span>
+                    <span class="text-sm">Connection Error</span>
+                `;
+            }
+        }
+        
+        // Load recent transactions
+        async function loadTransactions() {
+            try {
+                const response = await fetch('/api/v1/transactions');
+                const transactions = await response.json();
+                
+                const container = document.getElementById('transactions-container');
+                
+                if (transactions.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-inbox text-3xl mb-3"></i>
+                            <p>No transactions yet</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = transactions.map(tx => `
+                    <div class="border-b border-gray-200 py-4 hover:bg-gray-50 cursor-pointer transition-colors" onclick="showTransactionDetails('${tx.transaction_id}')">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center mb-2">
+                                    <span class="status-indicator ${getStatusClass(tx.state)}"></span>
+                                    <span class="text-sm font-medium text-gray-900">${tx.action_type.toUpperCase()}</span>
+                                    <span class="text-xs text-gray-500 ml-2">${formatDate(tx.created_at)}</span>
+                                </div>
+                                <p class="text-sm text-gray-600">${getTransactionDescription(tx)}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs px-2 py-1 rounded-full ${getStateClass(tx.state)}">${tx.state}</span>
+                                <i class="fas fa-chevron-right text-gray-400 ml-2"></i>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                showToast('Failed to load transactions', 'error');
+            }
+        }
+        
+        // Modal functions
+        function openActionModal(action) {
+            currentAction = action;
+            const modal = document.getElementById('action-modal');
+            const title = document.getElementById('modal-title');
+            const commandInput = document.getElementById('command');
+            
+            const titles = {
+                'book': 'Book New Meeting',
+                'reschedule': 'Reschedule Meeting',
+                'cancel': 'Cancel Meeting'
+            };
+            
+            const placeholders = {
+                'book': 'Book a meeting with john@example.com tomorrow at 2 PM for 1 hour',
+                'reschedule': 'Reschedule my meeting with John from tomorrow 2 PM to Friday 3 PM',
+                'cancel': 'Cancel my meeting with John tomorrow at 2 PM'
+            };
+            
+            title.textContent = titles[action];
+            commandInput.placeholder = placeholders[action];
+            commandInput.value = '';
+            
+            // Reset form
+            document.getElementById('action-form').reset();
+            document.getElementById('call-options').classList.add('hidden');
+            
+            modal.classList.remove('hidden');
+        }
+        
+        function closeActionModal() {
+            document.getElementById('action-modal').classList.add('hidden');
+        }
+        
+        function closeTransactionModal() {
+            document.getElementById('transaction-modal').classList.add('hidden');
+        }
+        
+        // Submit action
+        async function submitAction(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('submit-btn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+            submitBtn.disabled = true;
+            
+            try {
+                const formData = new FormData(event.target);
+                // Map action to correct field names
+                const fieldMap = {
+                    'book': 'booking_command',
+                    'reschedule': 'reschedule_command',
+                    'cancel': 'cancel_command'
+                };
+                const commandField = fieldMap[currentAction];
+                
+                const requestData = {
+                    [commandField]: formData.get('command'),
+                    trigger_call: formData.get('enable_call') === 'on',
+                    user_phone: formData.get('phone_number'),
+                    call_delay_minutes: parseInt(formData.get('call_delay')) || 0
+                };
+                
+                // Map action to correct endpoint
+                const endpointMap = {
+                    'book': 'integrated-booking',
+                    'reschedule': 'integrated-reschedule',
+                    'cancel': 'integrated-cancel'
+                };
+                const endpoint = endpointMap[currentAction];
+                const response = await fetch(`/api/v1/${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast(`${currentAction.charAt(0).toUpperCase() + currentAction.slice(1)} successful!`, 'success');
+                    closeActionModal();
+                    loadTransactions(); // Refresh transactions
+                } else {
+                    showToast(result.message || `${currentAction} failed`, 'error');
+                }
+                
+            } catch (error) {
+                showToast('Request failed. Please try again.', 'error');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+        
+        // Show transaction details
+        async function showTransactionDetails(transactionId) {
+            try {
+                const response = await fetch(`/api/v1/transaction/${transactionId}`);
+                const transaction = await response.json();
+                
+                const modal = document.getElementById('transaction-modal');
+                const details = document.getElementById('transaction-details');
+                
+                details.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm font-medium text-gray-500">Transaction ID</label>
+                                <p class="text-sm text-gray-900 font-mono">${transaction.transaction_id}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500">Action Type</label>
+                                <p class="text-sm text-gray-900">${transaction.action_type.toUpperCase()}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500">Status</label>
+                                <p class="text-sm"><span class="px-2 py-1 rounded-full ${getStateClass(transaction.state)}">${transaction.state}</span></p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500">Created</label>
+                                <p class="text-sm text-gray-900">${formatDate(transaction.created_at)}</p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-gray-500">Original Request</label>
+                            <pre class="text-xs bg-gray-100 p-3 rounded-lg mt-1 overflow-x-auto">${JSON.stringify(transaction.original_request, null, 2)}</pre>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-gray-500">State History</label>
+                            <div class="mt-2 space-y-2">
+                                ${transaction.state_history.map(entry => `
+                                    <div class="flex items-center text-sm">
+                                        <span class="status-indicator ${getStatusClass(entry.state)}"></span>
+                                        <span class="font-medium">${entry.state}</span>
+                                        <span class="text-gray-500 ml-2">${formatDate(entry.timestamp)}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        ${transaction.call_details ? `
+                            <div>
+                                <label class="text-sm font-medium text-gray-500">Call Details</label>
+                                <pre class="text-xs bg-gray-100 p-3 rounded-lg mt-1 overflow-x-auto">${JSON.stringify(transaction.call_details, null, 2)}</pre>
+                            </div>
+                        ` : ''}
+                        
+                        ${transaction.final_result ? `
+                            <div>
+                                <label class="text-sm font-medium text-gray-500">Final Result</label>
+                                <pre class="text-xs bg-gray-100 p-3 rounded-lg mt-1 overflow-x-auto">${JSON.stringify(transaction.final_result, null, 2)}</pre>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                modal.classList.remove('hidden');
+                
+            } catch (error) {
+                showToast('Failed to load transaction details', 'error');
+            }
+        }
+        
+        // Utility functions
+        function getStatusClass(state) {
+            const statusMap = {
+                'created': 'status-pending',
+                'booking_attempted': 'status-pending',
+                'reschedule_attempted': 'status-pending',
+                'cancel_attempted': 'status-pending',
+                'call_triggered': 'status-pending',
+                'call_completed': 'status-success',
+                'user_confirmed': 'status-success',
+                'completed': 'status-success',
+                'user_declined': 'status-failed',
+                'call_failed': 'status-failed',
+                'failed': 'status-failed'
+            };
+            return statusMap[state] || 'status-pending';
+        }
+        
+        function getStateClass(state) {
+            const stateMap = {
+                'created': 'bg-gray-100 text-gray-800',
+                'booking_attempted': 'bg-blue-100 text-blue-800',
+                'reschedule_attempted': 'bg-yellow-100 text-yellow-800',
+                'cancel_attempted': 'bg-orange-100 text-orange-800',
+                'call_triggered': 'bg-purple-100 text-purple-800',
+                'call_completed': 'bg-green-100 text-green-800',
+                'user_confirmed': 'bg-green-100 text-green-800',
+                'completed': 'bg-green-100 text-green-800',
+                'user_declined': 'bg-red-100 text-red-800',
+                'call_failed': 'bg-red-100 text-red-800',
+                'failed': 'bg-red-100 text-red-800'
+            };
+            return stateMap[state] || 'bg-gray-100 text-gray-800';
+        }
+        
+        function getTransactionDescription(tx) {
+            const command = tx.original_request.booking_command || 
+                          tx.original_request.reschedule_command || 
+                          tx.original_request.cancel_command || 
+                          'No command';
+            return command.length > 100 ? command.substring(0, 100) + '...' : command;
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString();
+        }
+        
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const icons = {
+                'success': 'fas fa-check-circle text-green-600',
+                'error': 'fas fa-exclamation-circle text-red-600',
+                'info': 'fas fa-info-circle text-blue-600'
+            };
+            
+            const colors = {
+                'success': 'bg-green-50 border-green-200',
+                'error': 'bg-red-50 border-red-200',
+                'info': 'bg-blue-50 border-blue-200'
+            };
+            
+            toast.className = `${colors[type]} border-l-4 p-4 mb-3 rounded-lg shadow-lg slide-in max-w-sm`;
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <i class="${icons[type]} mr-3"></i>
+                    <span class="text-sm text-gray-800">${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-auto text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

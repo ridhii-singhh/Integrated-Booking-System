@@ -1,0 +1,14 @@
+INFO:     Will watch for changes in these directories: ['/home/prashansa-soni/Desktop/call_based_agent/Call_based_Booking_Agent /complete project/Booking_Agent-main/Booking_agent_api']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [1277065] using WatchFiles
+INFO:     Started server process [1277125]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:37862 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37870 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37862 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56064 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58538 - "POST /api/v1/book HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58538 - "POST /api/v1/confirm HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38290 - "POST /api/v1/book HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38290 - "POST /api/v1/confirm HTTP/1.1" 200 OK
