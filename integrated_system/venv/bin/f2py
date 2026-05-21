@@ -1,9 +1,0 @@
-#!/bin/sh
-'''exec' "/home/prashansa-soni/Downloads/call_based_agent/Call_based_Booking_Agent /complete project/integrated_system/venv/bin/python3" "$0" "$@"
-' '''
-import sys
-from numpy.f2py.f2py2e import main
-if __name__ == '__main__':
-    if sys.argv[0].endswith('.exe'):
-        sys.argv[0] = sys.argv[0][:-4]
-    sys.exit(main())
